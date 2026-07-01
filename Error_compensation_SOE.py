@@ -248,7 +248,7 @@ def main(config):
     plot_loss_data(train_loss_history, val_loss_history)
 
    
-    print("开始模型测试（按文件对齐 + 统计总指标）...")
+   
     model.load_state_dict(torch.load("best_model.pth"))
     model.eval()
 
@@ -437,7 +437,7 @@ def main(config):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-data_path', type=str,
-                        default=r'E:\SOE\实车数据集处理\切分片段结果\电车公司1_505Ah\Model_Features')
+                        default=r'E:\SOE\data_processing\Segment extraction results\bus_505Ah\Model_Features')
     parser.add_argument('-seq_len',
                         type=int, default=16)
     parser.add_argument('-patch_len', type=int, default=4)
