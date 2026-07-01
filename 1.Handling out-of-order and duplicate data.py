@@ -43,5 +43,5 @@ def sort_and_deduplicate(base_dir):
 
 
 
-merged_data_dir = r"E:\SOE\实车数据集处理\广州公交数据合并"
+merged_data_dir = r"E:\SOE\data_processing\data merging"
 sort_and_deduplicate(merged_data_dir)
