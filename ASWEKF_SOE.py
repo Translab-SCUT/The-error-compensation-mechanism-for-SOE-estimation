@@ -261,5 +261,5 @@ def ekf_for_soe(folder_path):
 #plt.plot(ut)
 #plt.show()
 if __name__ == "__main__":
-    path = r'E:\SOE\实车数据集处理\切分片段结果\电车公司1_505Ah\SOE_Comparison_Output'
+    path = r'E:\SOE\data_processing\Segment extraction results\bus_505Ah\SOE_Comparison_Output'
     ekf_for_soe(path)
