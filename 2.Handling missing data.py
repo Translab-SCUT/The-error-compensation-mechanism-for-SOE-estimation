@@ -50,12 +50,12 @@ def process_missing_values(base_dir):
 
            
             df.to_csv(file_path, index=False, encoding='utf-8-sig')
-            print(f"  √ 缺失值填充完成")
+            print(f"  √ Missing value imputation completed")
 
         except Exception as e:
-            print(f"  × 处理失败 {file_path}: {e}")
+            print(f"  × Processing failed {file_path}: {e}")
 
 
 
-merged_data_dir = r"E:\SOE\实车数据集处理\广州公交数据合并"
+merged_data_dir = r"E:\SOE\data_processing\data merging"
 process_missing_values(merged_data_dir)
