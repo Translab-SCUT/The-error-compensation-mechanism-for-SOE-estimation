@@ -185,13 +185,13 @@ class Embedding(nn.Module):
         return x_emb  # x_emb: [B, M, D, N]
 
 
-#全局平均池化+1*1卷积核+ReLu+1*1卷积核+Sigmoid
+
 class SE_Block(nn.Module):
     def __init__(self, inchannel, ratio=4):
         super(SE_Block, self).__init__()
-        # 全局平均池化(Fsq操作)
+       
         self.gap = nn.AdaptiveAvgPool2d((1, 1))
-        # 两个全连接层(Fex操作)
+        
         self.fc = nn.Sequential(
             nn.Linear(inchannel, inchannel // ratio, bias=False),  # 从 c -> c/r
             nn.ReLU(),
@@ -200,19 +200,17 @@ class SE_Block(nn.Module):
         )
  
     def forward(self, x):
-            # 读取批数据图片数量及通道数
+           
             b, c, h, w = x.size()
-            # Fsq操作：经池化后输出b*c的矩阵
+           
             y = self.gap(x).view(b, c)
-            # Fex操作：经全连接层输出（b，c，1，1）矩阵
+            
             y = self.fc(y).view(b, c, 1, 1)
-            # Fscale操作：将得到的权重乘以原来的特征图x
+            
             return x * y.expand_as(x)
 
 class FeatureAttentionSE(nn.Module):
-    '''
-    基于SE原理，首先将不关注的维度进行自适应pooling。
-    '''
+   
     def __init__(self, in_channels):
         super().__init__()
         self.avgpool = nn.AdaptiveAvgPool1d(1)
@@ -229,14 +227,12 @@ class FeatureAttentionSE(nn.Module):
         z = self.Conv_Excitation(z)    
         # [n, c, 1]
         z = self.sigmoid(z)
-        # [n, c,len]*[n, c,len] ,其中：expand_as，将c复制到所有维度 [n, c,len]
+        
         outputs=U * z.expand_as(U)
         return outputs
     
 class FeatureAttentionSE4D(nn.Module):
-    '''
-    基于SE原理，首先将不关注的维度进行自适应pooling。
-    '''
+    
     def __init__(self, in_channels):
         super().__init__()
         self.avgpool = nn.AdaptiveAvgPool2d(1)
@@ -255,9 +251,9 @@ class FeatureAttentionSE4D(nn.Module):
         z = self.Conv_Excitation(z)     # shape: [bs, c, 1, 1]
         # [n, c, 1, 1]
         z = self.sigmoid(z)
-        # 归一化  [n, c, 1, 1]
+       
         z= self.softmax(z)
-        # [n, c,len]*[n, c,len] ,其中：expand_as，将c复制到所有维度 [n, c,len]
+   
         outputs = U * z.expand_as(U)
         # outputs:(100,8,48,100)    z:(100,8,1,1)
         return outputs
@@ -456,7 +452,7 @@ class VarEncoder(nn.Module):
             y[:, :, i, :] = self.layers[i](x[:, :, i].unsqueeze(-1))
         return y
 
-class PatchFormer(nn.Module):#结果不错，可行
+class PatchFormer(nn.Module):
     def __init__(self,patch_len,seq_len,pred_len,
                  enc_in, d_model=16,factor=3, dropout=0.1, output_attention=False, n_heads=8, activation='gelu', e_layers=2):
         super(PatchFormer,self).__init__()
@@ -578,15 +574,15 @@ class PatchFormerNetModel(BaseModel):
             e_layers=self.hparams.e_layers
         )
 
-    # 修改，锂电池预测
+    
     def forward(self, x: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         x_enc = x["encoder_cont"][:,:,:-1]
-        # 输出
+        
         prediction = self.network(x_enc)
-        # 输出rescale， rescale predictions into target space
+        
         prediction = self.transform_output(prediction, target_scale=x["target_scale"])
 
-        # 返回一个字典，包含输出结果（prediction）
+    
         return self.to_network_output(prediction=prediction)
     
 
