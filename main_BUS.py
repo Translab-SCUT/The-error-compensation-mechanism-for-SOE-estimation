@@ -1,4 +1,4 @@
-# from dataloader.dataloader import XJTUdata
+
 
 import numpy as np
 
@@ -21,7 +21,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 
 def load_data(args):
-    root = r'E:\SOE\实车数据集处理\切分片段结果\出租车公司2_160Ah\Model_Features'
+    root = r'E:\SOE\data_processing\Segment extraction results\bus_505Ah\Model_Features'
     data_engine = Busdata(root=root, args=args)
 
     all_files = sorted([os.path.join(root, f) for f in os.listdir(root) if f.startswith('Final_')])
@@ -38,9 +38,7 @@ def load_data(args):
     val_files = all_files[train_end:val_end]
     test_files = all_files[val_end:]
 
-    print(f"文件划分 -> 训练: {len(train_files)}, 验证: {len(val_files)}, 测试: {len(test_files)}")
-
-    print("正在扫描训练集以计算全局归一化参数...")
+   
     all_train_feats = []
     for f in train_files:
         feat, _ = data_engine.load_bus_battery(f)
@@ -51,7 +49,6 @@ def load_data(args):
     data_engine.feature_stds = combined_train.std(axis=0)
     data_engine.feature_stds[data_engine.feature_stds == 0] = 1.0
     data_engine.feature_stds += 1e-8
-    print("全局归一化参数计算完成。")
 
     train_dict = data_engine.read_all(specific_path_list=train_files, is_test=False)
     val_dict = data_engine.read_all(specific_path_list=val_files, is_test=True)
@@ -70,7 +67,7 @@ def main():
     set_seed(42)
     args = get_args()
 
-    for e in range(1):  # 跑 5 次实验看平均表现
+    for e in range(1): 
         save_folder = f'results_of_reviewer/Bus_results/Experiment{e + 1}'
         if not os.path.exists(save_folder):
             os.makedirs(save_folder)
@@ -89,7 +86,7 @@ def main():
                    validloader=dataloader['valid'],
                    testloader=dataloader['test'])
 
-        print(">>> 正在为论文绘图准备单个文件的轨迹数据...")
+      
 
         pinn.solution_u.load_state_dict(pinn.best_model['solution_u'])
         pinn.eval()
@@ -115,25 +112,25 @@ def main():
                 res = np.hstack([np.concatenate(f_true), np.concatenate(f_pred)])
                 np.save(os.path.join(trace_folder, f'{file_name}_trace.npy'), res)
 
-        print(f">>> 轨迹保存完成，存放在: {trace_folder}")
+        
 
 
 def get_args():
     parser = argparse.ArgumentParser('Hyper Parameters for Bus dataset with PatchFormer-PINN')
 
     parser.add_argument('--data', type=str, default='Bus', help='XJTU, HUST, MIT, TJU, Bus')
-    parser.add_argument('--batch_size', type=int, default=128, help='实车数据量大，可以适当调大 batch_size')
-    parser.add_argument('--normalization_method', type=str, default='z-score', help='实车数据建议用 z-score')
+    parser.add_argument('--batch_size', type=int, default=128)
+    parser.add_argument('--normalization_method', type=str, default='z-score')
 
     parser.add_argument('--epochs', type=int, default=300, help='epoch')
     parser.add_argument('--early_stop', type=int, default=100, help='early stop')
-    parser.add_argument('--lr', type=float, default=0.0001, help='Transformer 建议 lr 设小一点')
-    parser.add_argument('--lr_F', type=float, default=1e-4, help='偏微分方程F网络学习率')
+    parser.add_argument('--lr', type=float, default=0.0001)
+    parser.add_argument('--lr_F', type=float, default=1e-4)
 
-    parser.add_argument('--alpha', type=float, default=0.3, help='PDE loss 权重')
-    parser.add_argument('--beta', type=float, default=0.1, help='物理约束权重')
+    parser.add_argument('--alpha', type=float, default=0.3, help='PDE loss weight ')
+    parser.add_argument('--beta', type=float, default=0.1, help='physical constraint weight')
 
-    parser.add_argument('--seq_len', type=int, default=8, help='滑动窗口长度')
+    parser.add_argument('--seq_len', type=int, default=8)
     parser.add_argument('--patch_len', type=int, default=4)
     parser.add_argument('--d_model', type=int, default=64)
     parser.add_argument('--e_layers', type=int, default=1)
@@ -142,7 +139,7 @@ def get_args():
     parser.add_argument('--F_hidden_dim', type=int, default=64)
     parser.add_argument('--log_dir', type=str, default='text_log.txt')
     parser.add_argument('--save_folder', type=str, default='results/Bus_results')
-    parser.add_argument('--dropout', type=float, default=0.5, help='实车数据噪声大，开启 0.5 Dropout')
+    parser.add_argument('--dropout', type=float, default=0.5)
 
     args = parser.parse_args()
     return args
